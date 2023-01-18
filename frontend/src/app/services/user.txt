@@ -1,0 +1,36 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+
+
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  constructor(private http : HttpClient){}
+  userDb: any = [];
+
+  testConnection(){
+    return this.http.get('http://localhost:3000/testConnection');
+  }
+
+  // adding the user
+  addUser(userData: any) {
+    this.userDb.push(userData);
+  }
+
+  // checking  login credentials
+  login(loginData: any) {
+    return this.userDb.some((user:any) =>  loginData.email === user.email && loginData.password === user.password );
+  }
+//deleting the user
+  deleteUser(email: any) {
+    let index = this.userDb.findIndex((user:any) => user.email === email);
+     this.userDb.splice(index, 1);
+  }
+
+  //updating the user
+  updateUser(index: number, updateUser: any) {
+    this.userDb.splice(index, 1, updateUser);
+  }
+}

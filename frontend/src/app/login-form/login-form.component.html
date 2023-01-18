@@ -1,0 +1,49 @@
+<div class="container-xxl h-100">
+  <div class="row h-100 justify-content-center h-100 align-items-center">
+    <div class="col-3 align-self-center text-center">
+      <div class="sing-up-container">
+        <mat-card class="bg-light">
+          <mat-icon color="warn">card_membership</mat-icon>
+          <mat-card-title class="mt-2"> please login</mat-card-title>
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <mat-card-content class="mt-3">
+              <mat-form-field class="matWidth" appearance="outline">
+                <mat-label>Email</mat-label>
+                <input
+                  type="email"
+                  matInput
+                  placeholder="abc@gmail.com"
+                  formControlName="email"
+                />
+                <mat-error>please enter valid email</mat-error>
+              </mat-form-field>
+              <mat-form-field class="matWidth" appearance="outline">
+                <mat-label>password</mat-label>
+                <input
+                  type="password"
+                  matInput
+                  placeholder="enter password"
+                  formControlName="password"
+                />
+              </mat-form-field>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button
+                mat-raised-button
+                color="warn"
+                [disabled]="loginForm.invalid"
+              >
+                login
+              </button>
+            </mat-card-actions>
+          </form>
+          <mat-card-footer>
+            <span>Don't have account ?</span>
+            <a mat-button color="primary" routerLink="/signup">sing up</a>
+          </mat-card-footer>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

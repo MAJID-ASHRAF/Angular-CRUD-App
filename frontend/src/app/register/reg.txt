@@ -1,0 +1,152 @@
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators} from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
+import { UserService } from '../services/user.service';
+
+@Component({
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
+})
+export class RegisterComponent implements OnInit {
+  constructor(
+    private userService: UserService,
+    private activatedRoute: ActivatedRoute,
+    private snackBar: MatSnackBar
+  ) {}
+  reactiveForm!: FormGroup;
+  editUser!: string;
+  updateUser: boolean = false;
+  userDb:any[]=[]
+
+
+
+  ngOnInit(): void {
+    this.fetchUserData()
+
+    this.reactiveForm = new FormGroup({
+      firstName: new FormControl(null, [
+        Validators.required,
+        this.noSpaceAllowed,
+      ]),
+      lastName: new FormControl(null, [
+        Validators.required,
+        this.noSpaceAllowed,
+      ]),
+      age: new FormControl(null, Validators.required),
+      contact: new FormControl(null, Validators.required),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      password: new FormControl(null, Validators.required),
+    });
+    this.activatedRoute.queryParamMap.subscribe((parm) => {
+      this.editUser = String(parm.get('email'));
+    });
+    this.activatedRoute.queryParamMap.subscribe((parm) => {
+      this.updateUser = Boolean(parm.get('edit'));
+    });
+
+    if (this.updateUser) {
+      let userData = this.userDb.find((user  : any) => {
+        return user.email == this.editUser;
+      });
+      setTimeout(() => {
+        this.reactiveForm.setValue({
+          firstName: userData?.firstName,
+          lastName: userData?.lastName,
+
+
+          age: userData?.age,
+          contact: userData?.contact,
+          email: userData?.email,
+            password: userData?.password,
+        });
+      }, 1000);
+
+    }
+
+
+  }
+
+  // fetching the data from data base
+
+  private fetchUserData(){
+    this.userService.getUserdb()
+    .pipe(map((res)=>{
+      const users=[];
+      for(const key in res){
+        if(res.hasOwnProperty(key)){
+          users.push({...res[key],id:key})
+        }
+      }
+      return users;
+    }))
+    .subscribe((users)=>{
+      this.userDb=users;
+
+
+    })
+  }
+  //when submit is clicked
+  onSubmit() {
+    if (this.updateUser) {
+      let index = this.userDb.findIndex((user:any) => {
+        return user.email == this.editUser;
+      });
+      this.userService.updateUser(index, this.reactiveForm.value);
+    } else {
+      let avaible: boolean = this.userDb.some((user: any) => {
+        return this.reactiveForm.value.email === user.email;
+      });
+      if (avaible) {
+        alert('email already registerd');}
+        else{
+          this.userService.addUser(this.reactiveForm.value).subscribe((res)=>{
+                console.log(res);
+                });
+          alert("user successfully registered")
+
+        }
+
+    }
+
+    this.reactiveForm.reset();
+    this.reactiveForm.markAsPristine();
+    this.reactiveForm.markAsUntouched();
+
+
+  }
+  //custom validation
+  noSpaceAllowed(control: FormControl) {
+    if (control.value != null && control.value.indexOf(' ') != -1) {
+      return { noSpaceAllowed: true };
+    }
+    return null;
+  }
+  //snackBar
+  openSnackBar(message: string, action: any) {
+    this.snackBar.open(message, action);
+  }
+}
+
+
+ // fetching the data from data base
+
+  private fetchUserData(){
+    this.userService.getUserdb()
+    .pipe(map((res)=>{
+      const users=[];
+      for(const key in res){
+        if(res.hasOwnProperty(key)){
+          users.push({...res[key],id:key})
+        }
+      }
+      return users;
+    }))
+    .subscribe((users)=>{
+      this.userDb=users;
+
+
+    })
+  }
